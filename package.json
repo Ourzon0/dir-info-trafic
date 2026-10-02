@@ -1,0 +1,13 @@
+{
+  "name": "dir-info-trafic",
+  "version": "1.0.0",
+  "description": "Bot Discord et affichage Info Trafic pour la DIR Galax RolePlay",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.22.1",
+    "express": "^5.1.0"
+  }
+}
