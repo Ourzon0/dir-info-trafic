@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const express = require("express");
+const { marked } = require("marked");
 
 const app = express();
 
@@ -26,80 +27,85 @@ const client = new Client({
 });
 
 /* =========================
-   PAGE INFO TRAFIC
+   PROTECTION HTML
+========================= */
+
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/* =========================
+   PAGE DU SITE
 ========================= */
 
 app.get("/", (req, res) => {
   res.send(`
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>INFO TRAFIC — DIR</title>
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Informations trafic — DIR</title>
 
   <style>
+
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
+      padding: 0;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
       background: #f1f3f5;
       color: #1f2937;
     }
 
-    header {
-      background: #172554;
-      color: white;
-      padding: 25px;
-      text-align: center;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
-    header p {
-      margin: 8px 0 0;
-      opacity: 0.85;
-    }
-
     main {
       max-width: 1000px;
-      margin: 30px auto;
-      padding: 0 20px;
-    }
 
-    .topbar {
-      background: white;
-      border-radius: 10px;
-      padding: 18px 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
+      margin: 0 auto;
 
-    .topbar strong {
-      color: #172554;
+      padding: 30px 20px;
     }
 
     .traffic-list {
       display: flex;
+
       flex-direction: column;
-      gap: 15px;
+
+      gap: 20px;
     }
 
     .traffic-card {
+
       background: white;
+
       border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+      padding: 25px;
+
+      box-shadow:
+        0 2px 8px rgba(0,0,0,0.08);
+
       border-left: 6px solid #64748b;
-      white-space: pre-wrap;
-      line-height: 1.6;
     }
 
     .traffic-card.red {
@@ -114,106 +120,231 @@ app.get("/", (req, res) => {
       border-left-color: #16a34a;
     }
 
+    /* =========================
+       MARKDOWN DISCORD
+    ========================= */
+
+    .message-content {
+      line-height: 1.65;
+
+      font-size: 16px;
+    }
+
+    .message-content h1 {
+      font-size: 28px;
+
+      margin-top: 0;
+      margin-bottom: 20px;
+
+      color: #172554;
+    }
+
+    .message-content h2 {
+      font-size: 23px;
+
+      margin-top: 20px;
+      margin-bottom: 15px;
+
+      color: #172554;
+    }
+
+    .message-content h3 {
+      font-size: 20px;
+
+      margin-top: 20px;
+      margin-bottom: 12px;
+
+      color: #172554;
+    }
+
+    .message-content p {
+      margin: 10px 0;
+    }
+
+    .message-content strong {
+      font-weight: 700;
+    }
+
+    .message-content em {
+      font-style: italic;
+    }
+
+    .message-content del {
+      text-decoration: line-through;
+    }
+
+    .message-content ul,
+    .message-content ol {
+      margin-top: 8px;
+      margin-bottom: 15px;
+
+      padding-left: 28px;
+    }
+
+    .message-content li {
+      margin: 5px 0;
+    }
+
+    .message-content hr {
+      border: 0;
+
+      border-top: 1px solid #d1d5db;
+
+      margin: 20px 0;
+    }
+
+    .message-content blockquote {
+      border-left: 4px solid #9ca3af;
+
+      margin: 15px 0;
+
+      padding: 5px 15px;
+
+      color: #4b5563;
+
+      background: #f8fafc;
+    }
+
+    .message-content code {
+      background: #e5e7eb;
+
+      padding: 2px 5px;
+
+      border-radius: 4px;
+
+      font-family: monospace;
+    }
+
+    .message-content pre {
+      background: #111827;
+
+      color: #f9fafb;
+
+      padding: 15px;
+
+      border-radius: 8px;
+
+      overflow-x: auto;
+    }
+
+    .message-content a {
+      color: #1d4ed8;
+
+      text-decoration: underline;
+    }
+
     .date {
-      margin-top: 12px;
-      font-size: 13px;
-      color: #64748b;
+
+      margin-top: 20px;
+
+      padding-top: 12px;
+
+      border-top: 1px solid #e5e7eb;
+
+      font-size: 12px;
+
+      color: #6b7280;
     }
 
     .empty {
+
       background: white;
-      padding: 35px;
+
+      padding: 40px;
+
       border-radius: 10px;
+
       text-align: center;
+
       color: #64748b;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+      box-shadow:
+        0 2px 8px rgba(0,0,0,0.08);
     }
 
-    footer {
-      text-align: center;
-      padding: 30px 20px;
-      font-size: 12px;
-      color: #64748b;
-    }
   </style>
+
 </head>
 
 <body>
 
-<header>
-  <h1>INFO TRAFIC</h1>
-  <p>DIRECTION INTERDÉPARTEMENTALE DES ROUTES — GALAX RÔLEPLAY</p>
-</header>
-
 <main>
 
-  <div class="topbar">
-    <strong>État du réseau</strong>
-    <div id="lastUpdate">Chargement...</div>
-  </div>
-
   <div id="traffic" class="traffic-list">
+
     <div class="empty">
       Chargement des informations trafic...
     </div>
+
   </div>
 
 </main>
 
-<footer>
-  SITE FICTIF — GALAX RÔLEPLAY
-</footer>
-
 <script>
+
 async function loadTraffic() {
-  const container = document.getElementById("traffic");
-  const lastUpdate = document.getElementById("lastUpdate");
+
+  const container =
+    document.getElementById("traffic");
 
   try {
-    const response = await fetch("/api/traffic");
+
+    const response =
+      await fetch("/api/traffic");
 
     if (!response.ok) {
       throw new Error("Erreur serveur");
     }
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
     if (!data.length) {
+
       container.innerHTML = \`
         <div class="empty">
           Aucun événement trafic en cours.
         </div>
       \`;
-    } else {
-      container.innerHTML = data.map(item => {
+
+      return;
+    }
+
+    container.innerHTML =
+      data.map(item => {
 
         let statusClass = "";
 
         if (item.content.startsWith("🔴")) {
+
           statusClass = "red";
+
         } else if (item.content.startsWith("🟠")) {
+
           statusClass = "orange";
+
         } else if (item.content.startsWith("🟢")) {
+
           statusClass = "green";
+
         }
 
-        const date = new Date(item.timestamp).toLocaleString("fr-FR");
-
         return \`
-          <div class="traffic-card \${statusClass}">
-            <div>\${escapeHtml(item.content)}</div>
-            <div class="date">
-              Mise à jour : \${date}
+          <article class="traffic-card \${statusClass}">
+
+            <div class="message-content">
+              \${item.html}
             </div>
-          </div>
+
+            <div class="date">
+              Publié le
+              \${new Date(item.timestamp).toLocaleString("fr-FR")}
+            </div>
+
+          </article>
         \`;
 
       }).join("");
-    }
-
-    lastUpdate.textContent =
-      "Dernière actualisation : " +
-      new Date().toLocaleTimeString("fr-FR");
 
   } catch (error) {
 
@@ -225,79 +356,143 @@ async function loadTraffic() {
       </div>
     \`;
 
-    lastUpdate.textContent = "Erreur de connexion";
   }
-}
 
-function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
 }
 
 loadTraffic();
 
-setInterval(loadTraffic, 60000);
+setInterval(
+  loadTraffic,
+  60000
+);
+
 </script>
 
 </body>
+
 </html>
   `);
 });
 
 /* =========================
-   API TRAFIC DISCORD
+   API DISCORD
 ========================= */
 
 app.get("/api/traffic", async (req, res) => {
+
   try {
-    const channel = await client.channels.fetch(DISCORD_CHANNEL_ID);
+
+    const channel =
+      await client.channels.fetch(
+        DISCORD_CHANNEL_ID
+      );
 
     if (!channel) {
+
       return res.status(404).json({
         error: "Salon Discord introuvable"
       });
+
     }
 
-    const messages = await channel.messages.fetch({
-      limit: 20
-    });
+    const messages =
+      await channel.messages.fetch({
+        limit: 20
+      });
 
-    const traffic = messages
-      .filter(message => !message.author.bot)
-      .filter(message => message.content.trim().length > 0)
-      .map(message => ({
-        id: message.id,
-        content: message.content,
-        timestamp: message.createdAt
-      }));
+    const traffic =
+      messages
+
+        .filter(
+          message => !message.author.bot
+        )
+
+        .filter(
+          message =>
+            message.content.trim().length > 0
+        )
+
+        .map(message => {
+
+          /*
+           * On protège le HTML envoyé par Discord
+           * avant de laisser Marked interpréter
+           * le Markdown.
+           */
+
+          const safeText =
+            escapeHtml(message.content);
+
+          const html =
+            marked.parse(safeText, {
+              breaks: true,
+              gfm: true
+            });
+
+          return {
+
+            id: message.id,
+
+            content:
+              message.content,
+
+            html:
+              html,
+
+            timestamp:
+              message.createdAt
+
+          };
+
+        });
 
     res.json(traffic);
 
   } catch (error) {
 
-    console.error("Erreur API trafic :", error);
+    console.error(
+      "Erreur API trafic :",
+      error
+    );
 
     res.status(500).json({
-      error: "Impossible de récupérer les messages Discord"
+      error:
+        "Impossible de récupérer les messages Discord"
     });
+
   }
+
 });
 
 /* =========================
-   DISCORD
+   BOT DISCORD
 ========================= */
 
 client.once("ready", () => {
-  console.log(`✅ Bot connecté : ${client.user.tag}`);
+
+  console.log(
+    \`✅ Bot connecté : \${client.user.tag}\`
+  );
+
 });
 
-client.login(DISCORD_TOKEN);
+/* =========================
+   CONNEXION DISCORD
+========================= */
+
+client.login(
+  DISCORD_TOKEN
+);
 
 /* =========================
-   SERVEUR
+   SERVEUR RAILWAY
 ========================= */
 
 app.listen(PORT, () => {
-  console.log(`🌐 Serveur lancé sur le port ${PORT}`);
+
+  console.log(
+    \`🌐 Serveur lancé sur le port \${PORT}\`
+  );
+
 });
