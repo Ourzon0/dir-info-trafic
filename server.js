@@ -27,242 +27,170 @@ const client = new Client({
 });
 
 /* =========================
-   PROTECTION HTML
-========================= */
-
-function escapeHtml(text) {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-/* =========================
-   PAGE DU SITE
+   PAGE RAILWAY
 ========================= */
 
 app.get("/", (req, res) => {
   res.send(`
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
 
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>Informations trafic — DIR</title>
-
-  <style>
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-      background: #f1f3f5;
-      color: #1f2937;
-    }
-
-    main {
-      max-width: 1000px;
-
-      margin: 0 auto;
-
-      padding: 30px 20px;
-    }
-
-    .traffic-list {
-      display: flex;
-
-      flex-direction: column;
-
-      gap: 20px;
-    }
-
-    .traffic-card {
-
-      background: white;
-
-      border-radius: 10px;
-
-      padding: 25px;
-
-      box-shadow:
-        0 2px 8px rgba(0,0,0,0.08);
-
-      border-left: 6px solid #64748b;
-    }
-
-    .traffic-card.red {
-      border-left-color: #dc2626;
-    }
-
-    .traffic-card.orange {
-      border-left-color: #f59e0b;
-    }
-
-    .traffic-card.green {
-      border-left-color: #16a34a;
-    }
-
-    /* =========================
-       MARKDOWN DISCORD
-    ========================= */
-
-    .message-content {
-      line-height: 1.65;
-
-      font-size: 16px;
-    }
-
-    .message-content h1 {
-      font-size: 28px;
-
-      margin-top: 0;
-      margin-bottom: 20px;
-
-      color: #172554;
-    }
-
-    .message-content h2 {
-      font-size: 23px;
-
-      margin-top: 20px;
-      margin-bottom: 15px;
-
-      color: #172554;
-    }
-
-    .message-content h3 {
-      font-size: 20px;
-
-      margin-top: 20px;
-      margin-bottom: 12px;
-
-      color: #172554;
-    }
-
-    .message-content p {
-      margin: 10px 0;
-    }
-
-    .message-content strong {
-      font-weight: 700;
-    }
-
-    .message-content em {
-      font-style: italic;
-    }
-
-    .message-content del {
-      text-decoration: line-through;
-    }
-
-    .message-content ul,
-    .message-content ol {
-      margin-top: 8px;
-      margin-bottom: 15px;
-
-      padding-left: 28px;
-    }
-
-    .message-content li {
-      margin: 5px 0;
-    }
-
-    .message-content hr {
-      border: 0;
-
-      border-top: 1px solid #d1d5db;
-
-      margin: 20px 0;
-    }
-
-    .message-content blockquote {
-      border-left: 4px solid #9ca3af;
-
-      margin: 15px 0;
-
-      padding: 5px 15px;
-
-      color: #4b5563;
-
-      background: #f8fafc;
-    }
-
-    .message-content code {
-      background: #e5e7eb;
-
-      padding: 2px 5px;
-
-      border-radius: 4px;
-
-      font-family: monospace;
-    }
-
-    .message-content pre {
-      background: #111827;
-
-      color: #f9fafb;
-
-      padding: 15px;
-
-      border-radius: 8px;
-
-      overflow-x: auto;
-    }
-
-    .message-content a {
-      color: #1d4ed8;
-
-      text-decoration: underline;
-    }
-
-    .date {
-
-      margin-top: 20px;
-
-      padding-top: 12px;
-
-      border-top: 1px solid #e5e7eb;
-
-      font-size: 12px;
-
-      color: #6b7280;
-    }
-
-    .empty {
-
-      background: white;
-
-      padding: 40px;
-
-      border-radius: 10px;
-
-      text-align: center;
-
-      color: #64748b;
-
-      box-shadow:
-        0 2px 8px rgba(0,0,0,0.08);
-    }
-
-  </style>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>Informations trafic</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #f1f3f5;
+  color: #1f2937;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.traffic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.traffic-card {
+  background: white;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-left: 6px solid #64748b;
+}
+
+.traffic-card.red {
+  border-left-color: #dc2626;
+}
+
+.traffic-card.orange {
+  border-left-color: #f59e0b;
+}
+
+.traffic-card.green {
+  border-left-color: #16a34a;
+}
+
+.message-content {
+  line-height: 1.65;
+  font-size: 16px;
+}
+
+.message-content h1 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 28px;
+  color: #172554;
+}
+
+.message-content h2 {
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 23px;
+  color: #172554;
+}
+
+.message-content h3 {
+  margin-top: 20px;
+  margin-bottom: 12px;
+  font-size: 20px;
+  color: #172554;
+}
+
+.message-content p {
+  margin: 10px 0;
+}
+
+.message-content ul,
+.message-content ol {
+  padding-left: 28px;
+  margin-top: 8px;
+  margin-bottom: 15px;
+}
+
+.message-content li {
+  margin: 5px 0;
+}
+
+.message-content hr {
+  border: 0;
+  border-top: 1px solid #d1d5db;
+  margin: 20px 0;
+}
+
+.message-content strong {
+  font-weight: 700;
+}
+
+.message-content em {
+  font-style: italic;
+}
+
+.message-content blockquote {
+  border-left: 4px solid #9ca3af;
+  margin: 15px 0;
+  padding: 5px 15px;
+  color: #4b5563;
+  background: #f8fafc;
+}
+
+.message-content code {
+  background: #e5e7eb;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.message-content pre {
+  background: #111827;
+  color: #f9fafb;
+  padding: 15px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.message-content a {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.date {
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.empty {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  text-align: center;
+  color: #64748b;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+</style>
 
 </head>
 
@@ -271,11 +199,9 @@ app.get("/", (req, res) => {
 <main>
 
   <div id="traffic" class="traffic-list">
-
     <div class="empty">
       Chargement des informations trafic...
     </div>
-
   </div>
 
 </main>
@@ -284,77 +210,77 @@ app.get("/", (req, res) => {
 
 async function loadTraffic() {
 
-  const container =
-    document.getElementById("traffic");
+  const container = document.getElementById("traffic");
 
   try {
 
-    const response =
-      await fetch("/api/traffic");
+    const response = await fetch("/api/traffic");
 
     if (!response.ok) {
       throw new Error("Erreur serveur");
     }
 
-    const data =
-      await response.json();
+    const data = await response.json();
 
     if (!data.length) {
 
-      container.innerHTML = \`
-        <div class="empty">
-          Aucun événement trafic en cours.
-        </div>
-      \`;
+      container.innerHTML =
+        '<div class="empty">' +
+        'Aucun événement trafic en cours.' +
+        '</div>';
 
       return;
     }
 
-    container.innerHTML =
-      data.map(item => {
+    let html = "";
 
-        let statusClass = "";
+    data.forEach(function(item) {
 
-        if (item.content.startsWith("🔴")) {
+      let statusClass = "";
 
-          statusClass = "red";
+      if (item.content.indexOf("🔴") === 0) {
+        statusClass = "red";
+      }
 
-        } else if (item.content.startsWith("🟠")) {
+      if (item.content.indexOf("🟠") === 0) {
+        statusClass = "orange";
+      }
 
-          statusClass = "orange";
+      if (item.content.indexOf("🟢") === 0) {
+        statusClass = "green";
+      }
 
-        } else if (item.content.startsWith("🟢")) {
+      const date = new Date(item.timestamp)
+        .toLocaleString("fr-FR");
 
-          statusClass = "green";
+      html +=
+        '<article class="traffic-card ' +
+        statusClass +
+        '">' +
 
-        }
+        '<div class="message-content">' +
+        item.html +
+        '</div>' +
 
-        return \`
-          <article class="traffic-card \${statusClass}">
+        '<div class="date">' +
+        'Publié le ' +
+        date +
+        '</div>' +
 
-            <div class="message-content">
-              \${item.html}
-            </div>
+        '</article>';
 
-            <div class="date">
-              Publié le
-              \${new Date(item.timestamp).toLocaleString("fr-FR")}
-            </div>
+    });
 
-          </article>
-        \`;
-
-      }).join("");
+    container.innerHTML = html;
 
   } catch (error) {
 
     console.error(error);
 
-    container.innerHTML = \`
-      <div class="empty">
-        Impossible de récupérer les informations trafic.
-      </div>
-    \`;
+    container.innerHTML =
+      '<div class="empty">' +
+      'Impossible de récupérer les informations trafic.' +
+      '</div>';
 
   }
 
@@ -362,21 +288,17 @@ async function loadTraffic() {
 
 loadTraffic();
 
-setInterval(
-  loadTraffic,
-  60000
-);
+setInterval(loadTraffic, 60000);
 
 </script>
 
 </body>
-
 </html>
   `);
 });
 
 /* =========================
-   API DISCORD
+   API TRAFIC
 ========================= */
 
 app.get("/api/traffic", async (req, res) => {
@@ -384,9 +306,7 @@ app.get("/api/traffic", async (req, res) => {
   try {
 
     const channel =
-      await client.channels.fetch(
-        DISCORD_CHANNEL_ID
-      );
+      await client.channels.fetch(DISCORD_CHANNEL_ID);
 
     if (!channel) {
 
@@ -401,58 +321,52 @@ app.get("/api/traffic", async (req, res) => {
         limit: 20
       });
 
-    const traffic =
-      messages
+    const traffic = messages
 
-        .filter(
-          message => !message.author.bot
-        )
+      .filter(function(message) {
+        return !message.author.bot;
+      })
 
-        .filter(
-          message =>
-            message.content.trim().length > 0
-        )
+      .filter(function(message) {
+        return message.content.trim().length > 0;
+      })
 
-        .map(message => {
+      .map(function(message) {
 
-          /*
-           * On protège le HTML envoyé par Discord
-           * avant de laisser Marked interpréter
-           * le Markdown.
-           */
+        /*
+         * On échappe le HTML avant de convertir
+         * le Markdown Discord en HTML.
+         */
 
-          const safeText =
-            escapeHtml(message.content);
+        const safeText =
+          message.content
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
 
-          const html =
-            marked.parse(safeText, {
-              breaks: true,
-              gfm: true
-            });
+        const html =
+          marked.parse(safeText, {
+            breaks: true,
+            gfm: true
+          });
 
-          return {
+        return {
+          id: message.id,
+          content: message.content,
+          html: html,
+          timestamp: message.createdAt
+        };
 
-            id: message.id,
-
-            content:
-              message.content,
-
-            html:
-              html,
-
-            timestamp:
-              message.createdAt
-
-          };
-
-        });
+      });
 
     res.json(traffic);
 
   } catch (error) {
 
     console.error(
-      "Erreur API trafic :",
+      "❌ Erreur API trafic :",
       error
     );
 
@@ -469,10 +383,11 @@ app.get("/api/traffic", async (req, res) => {
    BOT DISCORD
 ========================= */
 
-client.once("ready", () => {
+client.once("ready", function() {
 
   console.log(
-    \`✅ Bot connecté : \${client.user.tag}\`
+    "✅ Bot connecté : " +
+    client.user.tag
   );
 
 });
@@ -481,18 +396,17 @@ client.once("ready", () => {
    CONNEXION DISCORD
 ========================= */
 
-client.login(
-  DISCORD_TOKEN
-);
+client.login(DISCORD_TOKEN);
 
 /* =========================
-   SERVEUR RAILWAY
+   SERVEUR
 ========================= */
 
-app.listen(PORT, () => {
+app.listen(PORT, function() {
 
   console.log(
-    \`🌐 Serveur lancé sur le port \${PORT}\`
+    "🌐 Serveur lancé sur le port " +
+    PORT
   );
 
 });
