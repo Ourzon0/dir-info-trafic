@@ -27,6 +27,31 @@ const client = new Client({
 });
 
 /* =========================
+   PROTECTION HTML
+========================= */
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/* =========================
+   PROTECTION URL
+========================= */
+
+function escapeAttribute(url) {
+  return String(url)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/* =========================
    PAGE RAILWAY
 ========================= */
 
@@ -34,6 +59,7 @@ app.get("/", (req, res) => {
   res.send(`
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
 
 <meta charset="UTF-8">
@@ -90,6 +116,10 @@ main {
 .traffic-card.green {
   border-left-color: #16a34a;
 }
+
+/* =========================
+   TEXTE DISCORD
+========================= */
 
 .message-content {
   line-height: 1.65;
@@ -173,6 +203,35 @@ main {
   text-decoration: underline;
 }
 
+/* =========================
+   IMAGES DISCORD
+========================= */
+
+.attachments {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.traffic-image {
+  display: block;
+
+  width: 100%;
+  max-width: 900px;
+  max-height: 600px;
+
+  object-fit: contain;
+
+  margin: 0 auto;
+
+  border-radius: 8px;
+
+  border: 1px solid #e5e7eb;
+
+  background: #f8fafc;
+}
+
 .date {
   margin-top: 20px;
   padding-top: 12px;
@@ -199,9 +258,11 @@ main {
 <main>
 
   <div id="traffic" class="traffic-list">
+
     <div class="empty">
       Chargement des informations trafic...
     </div>
+
   </div>
 
 </main>
@@ -210,17 +271,20 @@ main {
 
 async function loadTraffic() {
 
-  const container = document.getElementById("traffic");
+  const container =
+    document.getElementById("traffic");
 
   try {
 
-    const response = await fetch("/api/traffic");
+    const response =
+      await fetch("/api/traffic");
 
     if (!response.ok) {
       throw new Error("Erreur serveur");
     }
 
-    const data = await response.json();
+    const data =
+      await response.json();
 
     if (!data.length) {
 
@@ -250,8 +314,9 @@ async function loadTraffic() {
         statusClass = "green";
       }
 
-      const date = new Date(item.timestamp)
-        .toLocaleString("fr-FR");
+      const date =
+        new Date(item.timestamp)
+          .toLocaleString("fr-FR");
 
       html +=
         '<article class="traffic-card ' +
@@ -260,7 +325,38 @@ async function loadTraffic() {
 
         '<div class="message-content">' +
         item.html +
-        '</div>' +
+        '</div>';
+
+      /* =========================
+         IMAGES
+      ========================= */
+
+      if (
+        item.attachments &&
+        item.attachments.length > 0
+      ) {
+
+        html +=
+          '<div class="attachments">';
+
+        item.attachments.forEach(function(image) {
+
+          html +=
+            '<img ' +
+            'class="traffic-image" ' +
+            'src="' + image.url + '" ' +
+            'alt="' + image.name + '" ' +
+            'loading="lazy"' +
+            '>';
+
+        });
+
+        html +=
+          '</div>';
+
+      }
+
+      html +=
 
         '<div class="date">' +
         'Publié le ' +
@@ -286,9 +382,20 @@ async function loadTraffic() {
 
 }
 
+/*
+ * Première récupération
+ */
+
 loadTraffic();
 
-setInterval(loadTraffic, 60000);
+/*
+ * Actualisation automatique toutes les 60 secondes
+ */
+
+setInterval(
+  loadTraffic,
+  60000
+);
 
 </script>
 
@@ -298,7 +405,7 @@ setInterval(loadTraffic, 60000);
 });
 
 /* =========================
-   API TRAFIC
+   API TRAFIC DISCORD
 ========================= */
 
 app.get("/api/traffic", async (req, res) => {
@@ -306,7 +413,9 @@ app.get("/api/traffic", async (req, res) => {
   try {
 
     const channel =
-      await client.channels.fetch(DISCORD_CHANNEL_ID);
+      await client.channels.fetch(
+        DISCORD_CHANNEL_ID
+      );
 
     if (!channel) {
 
@@ -321,45 +430,92 @@ app.get("/api/traffic", async (req, res) => {
         limit: 20
       });
 
-    const traffic = messages
+    const traffic =
+      messages
 
-      .filter(function(message) {
-        return !message.author.bot;
-      })
+        .filter(function(message) {
 
-      .filter(function(message) {
-        return message.content.trim().length > 0;
-      })
+          return !message.author.bot;
 
-      .map(function(message) {
+        })
 
-        /*
-         * On échappe le HTML avant de convertir
-         * le Markdown Discord en HTML.
-         */
+        .filter(function(message) {
 
-        const safeText =
-          message.content
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+          return message.content.trim().length > 0 ||
+                 message.attachments.size > 0;
 
-        const html =
-          marked.parse(safeText, {
-            breaks: true,
-            gfm: true
-          });
+        })
 
-        return {
-          id: message.id,
-          content: message.content,
-          html: html,
-          timestamp: message.createdAt
-        };
+        .map(function(message) {
 
-      });
+          /* =========================
+             MARKDOWN DISCORD
+          ========================= */
+
+          const safeText =
+            escapeHtml(message.content);
+
+          const html =
+            marked.parse(
+              safeText,
+              {
+                breaks: true,
+                gfm: true
+              }
+            );
+
+          /* =========================
+             PIÈCES JOINTES
+          ========================= */
+
+          const attachments = [];
+
+          message.attachments.forEach(
+            function(attachment) {
+
+              const contentType =
+                attachment.contentType || "";
+
+              const isImage =
+                contentType.startsWith("image/");
+
+              if (isImage) {
+
+                attachments.push({
+                  url: escapeAttribute(
+                    attachment.url
+                  ),
+
+                  name: escapeHtml(
+                    attachment.name ||
+                    "Image trafic"
+                  )
+                });
+
+              }
+
+            }
+          );
+
+          return {
+
+            id: message.id,
+
+            content:
+              message.content,
+
+            html:
+              html,
+
+            attachments:
+              attachments,
+
+            timestamp:
+              message.createdAt
+
+          };
+
+        });
 
     res.json(traffic);
 
@@ -371,8 +527,10 @@ app.get("/api/traffic", async (req, res) => {
     );
 
     res.status(500).json({
+
       error:
         "Impossible de récupérer les messages Discord"
+
     });
 
   }
@@ -396,17 +554,22 @@ client.once("ready", function() {
    CONNEXION DISCORD
 ========================= */
 
-client.login(DISCORD_TOKEN);
+client.login(
+  DISCORD_TOKEN
+);
 
 /* =========================
-   SERVEUR
+   SERVEUR RAILWAY
 ========================= */
 
-app.listen(PORT, function() {
+app.listen(
+  PORT,
+  function() {
 
-  console.log(
-    "🌐 Serveur lancé sur le port " +
-    PORT
-  );
+    console.log(
+      "🌐 Serveur lancé sur le port " +
+      PORT
+    );
 
-});
+  }
+);
